@@ -1,0 +1,66 @@
+[
+    {
+        "id":17,
+        "src":"./img/智能2.webp",
+        "name":"Xiaomi Sound",
+        "into":"小米高保真智能音箱",
+        "price":"499元",
+        "price1":"499元"
+    },
+    {
+        "id":18,
+        "src":"./img/智能3.webp",
+        "name":"小米路由器AX3000",
+        "into":"小米路由器AX3000",
+        "price":"349元",
+        "price1":"349元"
+    },
+    {
+        "id":19,
+        "src":"./img/智能4.webp",
+        "name":"Redmi路由器AX3000",
+        "into":"疾速WiFi6，更快一步。",
+        "price":"249元",
+        "price1":"269元"
+    },
+    {
+        "id":20,
+        "src":"./img/智能5.webp",
+        "name":"小米全自动智能门锁 Pro",
+        "into":"一步到位，全面高能",
+        "price":"2199元",
+        "price1":"2199元"
+    },
+    {
+        "id":21,
+        "src":"./img/智能7.webp",
+        "name":"小米智能门锁 E",
+        "into":"告别钥匙，畅享便捷生活",
+        "price":"899元",
+        "price1":"999元"
+    },
+    {
+        "id":22,
+        "src":"./img/智能8.webp",
+        "name":"小米小爱音箱 Play",
+        "into":"听音乐、语音遥控家电",
+        "price":"109元",
+        "price1":"109元"
+    },
+    {
+        "id":23,
+        "src":"./img/智能9.webp",
+        "name":"米家智能窗帘",
+        "into":"窗帘开合随心控",
+        "price":"749元",
+        "price1":"749元"
+    },
+    {
+        "id":24,
+        "src":"./img/智能10.webp",
+        "name":"小米体脂秤2",
+        "into":"小米体脂秤2",
+        "price":"99元",
+        "price1":"99元"
+    }
+]
