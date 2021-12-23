@@ -10,6 +10,7 @@ class Header {
         this.headNav()
         this.logoClick()
         this.search()
+        this.loggingStatus()
 
     }
     logoClick() {
@@ -42,6 +43,32 @@ class Header {
                     }
                 }
             }
+        }
+    }
+    //判断用户登录状态改变登录状态栏
+    loggingStatus(){
+        // 获取需要的元素
+        let headerW = document.querySelector('.header-info')
+        // 获取您的用户名
+        let name = localStorage.getItem('name')
+        //判断你的用户名是否为空，也就是是否登录
+        if(!name)return;
+        
+        let hea = headerW.firstElementChild
+        let heaChild = headerW.firstElementChild.firstElementChild // => 登录 a链接
+        let nexHea = hea.nextElementSibling.firstElementChild  // => 注册
+        //设置样式
+        nexHea.innerHTML = "注册新用户"
+        heaChild.innerHTML = name+"欢迎您"
+        heaChild.style.color = "#fff"
+        heaChild.style.fontSize = "14px"
+        //移到上面提示点击重新登录
+        hea.onmouseover = function(){
+            heaChild.innerHTML = "点击登录其他账户"
+        }
+        hea.onmouseout = function(){
+            heaChild.innerHTML = name+"欢迎您"
+            heaChild.style.color = "#fff"
         }
     }
     //3、搜索框

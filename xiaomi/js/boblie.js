@@ -1,5 +1,5 @@
 //全部手机
-class alpPhone {
+class AlpPhone {
     constructor() {
         this.headed = document.querySelector('#main section ul')
         this.head = document.querySelector('#main #header ul')
@@ -80,9 +80,8 @@ class alpPhone {
                         <span class="present-price">${item.price}</span>
                         <span class="primary-price">${item.price1}</span>
                     </p>
-                      <button>加入购物车</button>
                 </li>
-
+                <button>加入购物车</button>
             </a>`
         })
         this.headed.innerHTML = count
@@ -110,4 +109,4 @@ class alpPhone {
         this.headed.innerHTML = count
     }
 }
-new alpPhone
+new AlpPhone

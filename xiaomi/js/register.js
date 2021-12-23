@@ -17,15 +17,38 @@ window.onload = function () {
         //判断正则是否一致
         console.log(!uCelliPhone.test(cell.value))
         if(!uCelliPhone.test(cell.value)){
-            alert('账户错误');
-            return
-        }if(!uPassword.test(psd.value)){
-            alert('密码错误');
-            return
-        }if(!uEmail.test(emailL.value)){
-            alert('邮箱错误');
-            return
+            layer.open({
+                title: '账户错误',
+                content: '请输入11位手机号',
+                btn: ['取消', '确认'],
+                btn2: function (index, layero) {//按钮【按钮二】的回调
+                    //return false 开启该代码可禁止点击该按钮关闭
+                }
+            })
         }
+        if(!uCelliPhone.test(cell.value))return;
+        if(!uPassword.test(psd.value)){
+            layer.open({
+                title: '密码错误',
+                content: '请输入6~12位字符',
+                btn: ['取消', '确认'],
+                btn2: function (index, layero) {//按钮【按钮二】的回调
+                    //return false 开启该代码可禁止点击该按钮关闭
+                }
+            })
+        }
+        if(!uPassword.test(psd.value))return;
+        if(!uEmail.test(emailL.value)){
+            layer.open({
+                title: '邮箱错误',
+                content: '请输入正确的邮箱',
+                btn: ['取消', '确认'],
+                btn2: function (index, layero) {//按钮【按钮二】的回调
+                    //return false 开启该代码可禁止点击该按钮关闭
+                }
+            })
+        }
+        if(!uEmail.test(emailL.value))return;
         //判断两次密码是否一致
         if(psd.value != cpsd.value) {
             cpsd.value = ""
@@ -57,16 +80,31 @@ function sign(name,password,email){
                     }
                 });
                 if(judge){
-                    alert('用户名已重复')
+                    layer.open({
+                        title: '用户名已重复',
+                        content: '',
+                        btn: ['取消', '确认'],
+                        btn2: function (index, layero) {//按钮【按钮二】的回调
+                            //return false 开启该代码可禁止点击该按钮关闭
+                        }
+                    })
                 }else{
                     axios.get({
                         url:'./php/celliphone.php',
                         data:{fn:"add1",name,password,email}
                     }).then((data)=>{
-                        alert('注册成功')
-                        setTimeout(()=>{
-                            location.href = "./login2.html"
-                        },1000)
+                        layer.open({
+                            title: '注册成功',
+                            content: '点击确定将在1秒后跳转到登录页面',
+                            btn: ['取消', '确认'],
+                            btn2: function (index, layero) {//按钮【按钮二】的回调
+                                //return false 开启该代码可禁止点击该按钮关闭
+                                setTimeout(()=>{
+                                    location.href = "./login2.html"
+                                },1000)
+                            }
+                        })
+                        
                     }).catch((data)=>{
                             console.log('错误')
                     })

@@ -39,32 +39,114 @@ function getStyle(ele, attr) {
     }
 }
 
-class applyColours{
-    //
-    constructor(){
+class ApplyColours {
+    constructor() {
         //渲染商品
         this.product = document.querySelector('.product-box')
+
         this.hid = location.search.slice(5).trim();//获取商品pid
-        this.counts=""
+        this.counts = ""
         this.num = 0
         this.circled = 0
         this.flag = true
         this.init()
 
     }
-    init(){
+    init() {
+        this.login()
         this.applyA()
     }
+    love(btnBox) {   // => btnBox 点击喜欢
+        let that = this
+
+        btnBox.onclick = function () {  // ！点击的回调函数
+            that.btnClick()
+        }
+        // console.log(btnBox)
+    }
+    async btnClick() { // !这里上点击确定的回调函数
+        //1、获取当前商品信息 、喜欢的商品不用选中颜色
+        let selList = document.querySelector('.selected-list').firstElementChild.firstElementChild // => 商品信息的li
+        let spId = document.querySelector('.selected-list').getAttribute('index') // =>商品id
+        let firsSp = selList.firstElementChild.innerHTML // => 商品名称
+        let lastSp = selList.lastElementChild   // => 商品价格
+
+        // 通过id获取商品信息
+        let data = await axios.get({ url: './json/phoneDates.json', data: {} }) // =>全部商品
+        data = JSON.parse(data)         // => [{},{}, ...] ！所有商品信息
+        let name = localStorage.getItem('name') // => 用户id
+        data.forEach((ele) => {
+            if (ele.id == spId) {     // ! 点击喜欢的商品id 等于 商品id的时候返回数据
+                // ！ajax这一块传保存一个**商品id以及用户名**就可以了，通过id在json中获取数据
+                axios.get({
+                    url: "./php/celliphone.php",
+                    data: { fn: "IamLike", spId, name }
+                }).then((data) => {
+                    data = JSON.parse(data)
+                    if (data == "") {       //   ！！！ 判断商品是否存在，存在则不添加，不存在则新增
+                        axios.get({         //   ！新增的数据传递，不存在新增
+                            url: "./php/celliphone.php",
+                            data: { fn: "like", spId, name }
+                        }).then((data)=>{
+                            layer.open({
+                                title: '添加成功',
+                                content: '商品添加成功',
+                                btn: ['取消', '确认'],
+                                btn2: function (index, layero) {//按钮【按钮二】的回调
+                                    //return false 开启该代码可禁止点击该按钮关闭
+                                }
+                            })
+                        }).catch((data)=>{
+                            console.log('错误')
+                        })
+                        
+                    }else{
+                        layer.open({
+                            title: '您喜欢的商品已存在',
+                            content: '主人，您喜欢的商品已经存在了',
+                            btn: ['取消', '确认'],
+                            btn2: function (index, layero) {//按钮【按钮二】的回调
+                                //return false 开启该代码可禁止点击该按钮关闭
+                            }
+                        })
+                    }
+                    console.log(data)
+                }).catch((data) => {
+                    console.log('错误')
+                })
+            }
+        })
+    }
+    //登录状态和未登录状态
+    login() {
+        let loginNotice = document.querySelector('.login-notice')
+        let name = localStorage.getItem('name')
+        if (name) {
+            loginNotice.style.display = "none"
+        } else {
+            loginNotice.style.display = "block"
+        }
+
+    }
     //**********************点击商品加入购物车*************************
-    goods(){
-        let plus = document.querySelector('.btn-box .putin')
-        plus.onclick = function(){
+    goods() {
+        let than = this
+        let plus = document.querySelector('.btn-box .putin')    // => 购物车按钮
+        plus.onclick = function () {   
             let arrObj = {}
             let name = localStorage.getItem('name')
-            if(!name){
-                alert('请先登录！！！')
-                return
+            if (!name) {
+                layer.open({
+                    title: '温馨小提示',
+                    content: '请先登录',
+                    btn: ['取消', '确认'],
+                    btn2: function (index, layero) {//按钮【按钮二】的回调
+                        //return false 开启该代码可禁止点击该按钮关闭
+                        return
+                    }
+                })
             }
+            if (!name) return;
             // if()
             let uIndexId = document.querySelector('.selected-list')
             //商品id
@@ -75,66 +157,96 @@ class applyColours{
             let all = uIndexId.querySelector('ul').firstElementChild.children
             all = Array.from(all)
             //判断不能为空
-            all.forEach((v,i)=>{
-                if(v.innerHTML == ""){
-                    alert('颜色不能为空')
-                    return
+            all.forEach((v, i) => {
+                if (v.innerHTML == "") {
+                    layer.open({
+                        title: '温馨小提示',
+                        content: '颜色不能为空',
+                        btn: ['取消', '确认'],
+                        btn2: function (index, layero) {//按钮【按钮二】的回调
+                            //return false 开启该代码可禁止点击该按钮关闭
+                            return
+                        }
+                    })
+
                 }
-                arrObj["plus"+i] = v.innerHTML
+                arrObj["plus" + i] = v.innerHTML
             })
+            //判断不能为空
+            if (all[1].innerHTML == "") return;
             let plus = all[0].innerHTML
             let color = all[1].innerHTML
             let price = all[2].innerHTML
             let num = 1
-            //给对象追加属性 arrObj ,并发送ajax保存在数据库中,判断数据库中存在数据则提示，不存在则添加
-            axios.get({
-                url:"./php/celliphone.php",
-                data:{fn:"selLy", id, name , color}
-            }).then((data)=>{
-                data = JSON.parse(data)
-                let judeg = false   //开关，存在则不执行，不存在则执行
-                //判断返回的数据是否存在
-                if(data == ""){//如果商品存返回数据，不存在返回空数组
-                    judeg = true
-                }else{
-                    data.forEach((ele)=>{
-                        //判断商品颜色、商品id、用户名是否存在，，，存则则不添加，在购物车可以添加数量
-                        if(ele.serial == id && ele.userName == name && ele.info == color){
-                            alert('商品已经存在')
-                            judeg = false
-                        }
-                    })
-                }
-                if(judeg){
-                    //判断商品不存在，或者商品存在，颜色不一致
-                    //则添加商品
-                    console.log(1111)
-                    axios.get({
-                        url:"./php/celliphone.php",
-                        data:{fn:"newly", id, name, plus, color, price, num}
-                    }).then((data)=>{
-                        //成功添加商品信息
-                        alert('添加成功')
-                    }).catch((data)=>{
-                        console.log(data)
-                    })
-                } 
 
-            }).catch((data)=>{
-                console.log(data)
-            })
+            than.callback(id, name, color, plus, price, num)    // ！ 回调追加
+
+
         }
     }
-    async applyA(){//渲染商品
+    callback(id, name, color, plus, price, num) {
+        //给对象追加属性 arrObj ,并发送ajax保存在数据库中,判断数据库中存在数据则提示，不存在则添加
+        axios.get({
+            url: "./php/celliphone.php",
+            data: { fn: "selLy", id, name, color }
+        }).then((data) => {
+            data = JSON.parse(data)
+            let judeg = false   //开关，存在则不执行，不存在则执行
+            //判断返回的数据是否存在
+            if (data == "") {//如果商品存返回数据，不存在返回空数组
+                judeg = true
+            } else {
+                data.forEach((ele) => {
+                    //判断商品颜色、商品id、用户名是否存在，，，存则则不添加，在购物车可以添加数量
+                    if (ele.serial == id && ele.userName == name && ele.info == color) {
+                        layer.open({
+                            title: '温馨小提示',
+                            content: '商品已经存在',
+                            btn: ['取消', '确认'],
+                            btn2: function (index, layero) {//按钮【按钮二】的回调
+                                //return false 开启该代码可禁止点击该按钮关闭
+                            }
+                        })
+                        judeg = false
+                    }
+                })
+            }
+            if (judeg) {
+                //判断商品不存在，或者商品存在，颜色不一致
+                //则添加商品
+                console.log(1111)
+                axios.get({
+                    url: "./php/celliphone.php",
+                    data: { fn: "newly", id, name, plus, color, price, num }
+                }).then((data) => {
+                    //成功添加商品信息
+                    layer.open({
+                        title: '温馨小提示',
+                        content: '商品添加成功',
+                        btn: ['取消', '确认'],
+                        btn2: function (index, layero) {//按钮【按钮二】的回调
+                            //return false 开启该代码可禁止点击该按钮关闭
+                        }
+                    })
+                }).catch((data) => {
+                    console.log(data)
+                })
+            }
+        }).catch((data) => {
+            console.log(data)
+        })
+    }
+
+    async applyA() {//渲染商品
         let that = this
         let data = await axios.get({ url: './json/phoneDates.json', data: {} })
         data = JSON.parse(data)
         //遍历数据 arr是图片
         data.forEach(ele => {
-            if(ele.id == this.hid){
+            if (ele.id == this.hid) {
                 let arr = ele.img.split(",")
                 let arrName = ele.color.split(",")
-                this.counts =`
+                this.counts = `
                 <div class="img-left">
                         <div class="container">
                             <ul class="wrapper">
@@ -199,13 +311,13 @@ class applyColours{
                             </div>
                             <ul class="clearfix">
                                 <li title="${arrName[0]}" class="active">
-                                    <a href="">${arrName[0]}</a>
+                                    <a href="javascript:;">${arrName[0]}</a>
                                 </li>
                                 <li title="${arrName[1]}" class="active">
-                                    <a href="">${arrName[1]}</a>
+                                    <a href="javascript:;">${arrName[1]}</a>
                                 </li>
                                 <li title="${arrName[2]}" class="active">
-                                    <a href="">${arrName[2]}</a>
+                                    <a href="javascript:;">${arrName[2]}</a>
                                 </li>
                             </ul>
                         </div>
@@ -263,27 +375,27 @@ class applyColours{
                         </div>
                     </div>
                 `
-                that.product.innerHTML = this.counts
-                this.temple(arr,ele.id)//调用传参
+                this.temple(arr, ele.id)//调用传参 !回调追加内容
+
             }
         });
         this.buyCho = document.querySelector('.buychoies .clearfix')
         let buChild = Array.from(this.buyCho.children)
         //商品颜色遍历
-        buChild.forEach((v,i)=>{
+        buChild.forEach((v, i) => {
             //当我们点击的时候颜色改变
-            v.onclick = function(){
+            v.onclick = function () {
                 //清空所有样式
-                buChild.forEach(function(v){
-                    Object.assign(v.style,{
-                        border : '1px solid #000',
-                        height : '42px'
+                buChild.forEach(function (v) {
+                    Object.assign(v.style, {
+                        border: '1px solid #000',
+                        height: '42px'
                     })
                 })
                 //点击按钮添加样式
-                Object.assign(this.style,{
-                    border : '2px solid #ff6700',
-                    height : '40px'
+                Object.assign(this.style, {
+                    border: '2px solid #ff6700',
+                    height: '40px'
                 })
                 //给总计添加内容
                 // console.log(this)
@@ -291,35 +403,39 @@ class applyColours{
                 //获取节点
                 let list = document.querySelector('.selected-list ul li').firstElementChild.nextElementSibling
                 list.innerHTML = title
-                
+
             }
         })
     }
 
-    temple(data,id){
+    temple(data, id) {
+        this.product.innerHTML = this.counts // =>回调追加
+
+        let btnBox = document.querySelector('.btn-box').lastElementChild // => 喜欢 节点
+        this.love(btnBox) //回调函数 ! 传入节点方便使用
         //追加一个商品id方便后续使用
         let indeed = document.querySelector('.selected-list')
-        indeed.setAttribute('index',id)
+        indeed.setAttribute('index', id)
         //商品详情轮播
         this.goods()    //点击按钮加入购物车方法调用
         let that = this
         // console.log(data)
-            setTimeout(function(){
-                that.imgLeft = document.querySelector('.product-box')
-                // let leftPic = that.imgLeft.firstElejentChild
-                //图片ul
-                let uPic = document.querySelector('.wrapper')
-                //图片拼接
-                let con =""
-                for(var j=0;j<data.length;j++){
-                    con += `<li><a href="javascript:;"><img src="${data[j]}"></a></li>`
-                }
-                uPic.innerHTML = con+`<li><a href="javascript:;"><img src="${data[0]}"></a></li>`
-                //轮播
-                that.carousel()
-            },1000)
+        setTimeout(function () {
+            that.imgLeft = document.querySelector('.product-box')
+            // let leftPic = that.imgLeft.firstElejentChild
+            //图片ul
+            let uPic = document.querySelector('.wrapper')
+            //图片拼接
+            let con = ""
+            for (var j = 0; j < data.length; j++) {
+                con += `<li><a href="javascript:;"><img src="${data[j]}"></a></li>`
+            }
+            uPic.innerHTML = con + `<li><a href="javascript:;"><img src="${data[0]}"></a></li>`
+            //轮播
+            that.carousel()
+        }, 1000)
     }
-    carousel(){//轮播
+    carousel() {//轮播
         this.wap = document.querySelector('.wrapper')
         this.imgWidth = this.wap.children[0].offsetWidth
         this.imgPIc = Array.from(this.wap.children)
@@ -332,13 +448,13 @@ class applyColours{
         //小圆点实现点击切换
         let that = this
         let items
-        function banLis(){
+        function banLis() {
             //实现移入变色，小圆点点击
-            for(let i=0;i<circles.length;i++){
+            for (let i = 0; i < circles.length; i++) {
                 //第一个小圆点设置默认样式，并给所有小圆点设置index属性
                 circles[0].classList.add('active')
-                circles[i].setAttribute('index',i)
-                circles[i].onclick = function(){
+                circles[i].setAttribute('index', i)
+                circles[i].onclick = function () {
                     let index = circles[i].getAttribute('index')
                     that.num = index
                     that.circled = index
@@ -347,20 +463,20 @@ class applyColours{
                     }
                     circles[i].classList.add('active')
                     // 移动
-                    console.log(that.wap)
-                    animation(that.wap,-that.imgWidth*index,"left")
+                    // console.log(that.wap)
+                    animation(that.wap, -that.imgWidth * index, "left")
                 }
             }
         }
         banLis()
         //右侧按钮点击
-        function rightCk(){
-            let riCk =  leRi.lastElementChild
-            riCk.onclick = function(){
+        function rightCk() {
+            let riCk = leRi.lastElementChild
+            riCk.onclick = function () {
                 that.flag = false
                 that.num++
-                animation(that.wap,-that.imgWidth*that.num,"left",function(){
-                    if(that.num == that.imgPIc.length-1){
+                animation(that.wap, -that.imgWidth * that.num, "left", function () {
+                    if (that.num == that.imgPIc.length - 1) {
                         that.num = 0
                         that.wap.style.left = 0
                     }
@@ -370,7 +486,7 @@ class applyColours{
                 if (that.circled > circles.length - 1) {
                     that.circled = 0
                 }
-                for(let j=0;j<circles.length;j++){
+                for (let j = 0; j < circles.length; j++) {
                     circles[j].classList.remove('active')
                 }
                 circles[that.circled].classList.add('active')
@@ -378,25 +494,25 @@ class applyColours{
             }
         }
         rightCk()//右侧按钮点击
-        function leftCk(){
-            let leCk =  leRi.firstElementChild
-            leCk.onclick =function(){
-                if(that.flag){
+        function leftCk() {
+            let leCk = leRi.firstElementChild
+            leCk.onclick = function () {
+                if (that.flag) {
                     that.flag = false
                     console.log(that.imgPIc)
-                    if(that.num == 0){
-                        that.num = that.imgPIc.length-1
-                        that.wap.style.left = -that.imgWidth*that.num + 'px'
+                    if (that.num == 0) {
+                        that.num = that.imgPIc.length - 1
+                        that.wap.style.left = -that.imgWidth * that.num + 'px'
                     }
                     that.num--
-                    animation(that.wap,-that.imgWidth*that.num,"left",function(){
+                    animation(that.wap, -that.imgWidth * that.num, "left", function () {
                         that.flag = true
                     })
                     that.circled--
                     if (that.circled < 0) {
-                        that.circled = circles.length-1
+                        that.circled = circles.length - 1
                     }
-                    for(let j=0;j<circles.length;j++){
+                    for (let j = 0; j < circles.length; j++) {
                         circles[j].classList.remove('active')
                     }
                     circles[that.circled].classList.add('active')
@@ -406,19 +522,19 @@ class applyColours{
         leftCk()
         //自动轮播
         autoPic()
-        function autoPic(){
+        function autoPic() {
             /**
          * 使用定时器，每两秒执行一次
          * 使用开关防止其他操作
          * 执行一遍翻页操作
          * **/
             items = setInterval(() => {
-                let riCk =  leRi.lastElementChild
-                riCk.onclick = function(){
+                let riCk = leRi.lastElementChild
+                riCk.onclick = function () {
                     that.flag = false
                     that.num++
-                    animation(that.wap,-that.imgWidth*that.num,"left",function(){
-                        if(that.num == that.imgPIc.length-1){
+                    animation(that.wap, -that.imgWidth * that.num, "left", function () {
+                        if (that.num == that.imgPIc.length - 1) {
                             that.num = 0
                             that.wap.style.left = 0
                         }
@@ -428,7 +544,7 @@ class applyColours{
                     if (that.circled > circles.length - 1) {
                         that.circled = 0
                     }
-                    for(let j=0;j<circles.length;j++){
+                    for (let j = 0; j < circles.length; j++) {
                         circles[j].classList.remove('active')
                     }
                     circles[that.circled].classList.add('active')
@@ -436,191 +552,12 @@ class applyColours{
                 riCk.onclick()
             }, 2000);
         }
-        this.cont.onmouseover = ()=>{
+        this.cont.onmouseover = () => {
             clearInterval(items)
         }
-        this.wap.onmouseout = ()=>{
+        this.wap.onmouseout = () => {
             autoPic()
         }
     }
 }
-new applyColours
-
-
-
-
-
-
-// $(function () {
-
-//     //1.logo点击
-//     // $(".logo").mousedown(function () {
-//     //     $(this).animate({
-//     //         width: 52,
-//     //         height: 52,
-//     //         marginTop: -$(".logo").height() / 2,
-//     //         marginLeft: -$(".logo").width() / 2,
-//     //     }, 50)
-//     // }).mouseup(function () {
-//     //     $(this).animate({
-//     //         width: 56,
-//     //         height: 56
-//     //     }, 50, () => {
-//     //         window.location.reload()
-//     //     })
-//     // })
-
-//     //2.headNav下拉菜单
-//     // $(".h-list").children("li").mouseenter(function () {
-//     //     let flag = false;
-//     //     $(this).parent().find(".down-menu-wrapper").each(function (index, item) {
-//     //         if ($(item).css("display") != "none") {
-//     //             flag = true;
-//     //         }
-//     //     })
-//     //     if (flag) {
-//     //         $(this).find(".down-menu-wrapper").css({ display: "block" }).end().siblings().find(".down-menu-wrapper").css({ display: "none" })
-//     //     } else {
-//     //         $(this).find(".down-menu-wrapper").stop().slideDown(500)
-//     //     }
-
-//     //     //取消搜索框下拉
-//     //     $(".h-search").find("input").css({
-//     //         "border-color": "#e0e0e0",
-//     //     }).siblings("button").css({
-//     //         "border-color": "#e0e0e0",
-//     //     }).siblings(".search-list").css({
-//     //         "display": "none",
-//     //     })
-//     // })
-
-//     // $(".h-list").mouseleave(function () {
-//     //     $(this).find(".down-menu-wrapper").stop().slideUp(0)
-//     // })
-
-
-//     // //3.h-search搜索框
-//     // $(".h-search").find("input").click(function (event) {
-//     //     event.stopPropagation();//阻止事件冒泡
-//     //     $(this).css({
-//     //         "border-color": "#ff6700",
-//     //     }).siblings("button").css({
-//     //         "border-color": "#ff6700",
-//     //     }).siblings(".search-list").css({
-//     //         "display": "block",
-//     //     })
-//     // })
-
-//     // $(".search-list").on("click", "li", function (event) {
-//     //     $(this).parent().siblings("[ type='text']").val($(this).text());
-//     // })
-
-//     // $("body").click(function () {
-//     //     $(".h-search").find("input").css({
-//     //         "border-color": "#e0e0e0",
-//     //     }).siblings("button").css({
-//     //         "border-color": "#e0e0e0",
-//     //     }).siblings(".search-list").css({
-//     //         "display": "none",
-//     //     })
-//     // })
-    
-//     //4.渲染页面
-//     const hid = location.search.slice(5).trim();//获取商品的编号
-//     console.log(hid);
-//     $.ajax({
-//         url: 'http://mine233.com/lsl/findgoods',
-//         type: 'get',
-//         getType: 'json',
-//         data: {
-//             pid: hid
-//         },
-//         success: function (result) {
-//             console.log(result);
-//             const da = JSON.parse(result.message);
-//             console.log(da);
-//             let arr = da.img.split(',');
-//             console.log(arr);
-//             let htmlStr = template('tpl', {
-//                 da, img_arr: arr
-//             });
-//             $('.product-box').html(htmlStr);
-//             // 分两部分渲染
-//             htmlStr = template('tpl1', {
-//                 da, img_arr: arr
-//             });
-//             // 导航名称更改
-//             $('.xi-product').html(htmlStr);
-//             // 加入购物车请求
-//             var uid = localStorage.getItem("uid");// 指代用户
-//             $(".putin").click(function (event) {
-//                 event.preventDefault();
-//                 console.log(00);
-//                 $.ajax({
-//                     url: 'http://mine233.com/lsl/addcart',
-//                     type: 'get',
-//                     dataType: 'json',
-//                     data: {
-//                         uid: uid,
-//                         pid: hid
-//                     },
-//                     success: function (res) {
-//                         console.log(res);
-//                     },
-//                     error: function (err) {
-//                         // console.log(err);
-//                     }
-//                 })
-//                 layer.msg('已加入到购物车');
-//             })
-//             // 加入喜欢请求
-//             var uid = localStorage.getItem("uid");// 指代用户
-//             $(".likes").click(function (event) {
-//                 event.preventDefault();
-//                 console.log(00);
-//                 $.ajax({
-//                     url: 'http://mine233.com/lsl/addfavorite',
-//                     type: 'get',
-//                     dataType: 'json',
-//                     data: {
-//                         uid: uid,
-//                         pid: hid
-//                     },
-//                     success: function (res) {
-//                         console.log(res);
-//                     },
-//                     error: function (err) {
-//                         console.log(err);
-//                     }
-//                 })
-//                 layer.msg('多谢米主的小心心！');
-//             })
-//             // 吸顶效果
-//             var html = document.documentElement,
-//                 xiproduct = document.querySelector('.xm-nav');
-//             var initPos = xiproduct.offsetTop;
-//             window.onscroll = function () {
-//                 // console.log(initPos);
-//                 // console.log(html.scrollTop)
-//                 if (html.scrollTop > initPos) {
-//                     with (xiproduct.style) {
-//                         position = 'fixed';
-//                         top = 0;
-//                     }
-//                 } else if (html.scrollTop == 0) {
-//                     console.log('触发')
-//                     xiproduct.style.position = 'relative';
-//                 }
-//             }
-//         }
-//     })
-//     //5.在头部设置账号
-//     if (localStorage.getItem("login") == 'true') {
-//         console.log(111);
-//         var acc = localStorage.getItem("account");
-//         $('.header-info').children().eq(0).find('a').html(acc)
-//         $(".login-notice").hide()
-//     }
-//     // console.log($(".putin"));
-// })
-
+new ApplyColours

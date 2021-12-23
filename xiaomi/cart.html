@@ -12,9 +12,6 @@
     <link rel="stylesheet" href="./css/carted.css">  
     <link rel="stylesheet" href="./iconfont/iconfont.css">
     <link rel="shortcut icon" href="./icon/favicon.ico" type="image/x-icon">
-    <!-- <link rel="stylesheet" href="./css/reset.css"> -->
-    <!-- <link rel="stylesheet" href="./layui-v2.6.8/layui/css/layui.css"> -->
-    <!-- <link rel="stylesheet" href="./css/loading.css"> -->
 
 
 </head>
@@ -51,7 +48,7 @@
                                 立即登录
                             </div>
                         </a>
-                        <a href="#">
+                        <a href="./index.html">
                             <div class="cart-btn cart-register fl">
                                 马上去购物
                             </div>
@@ -100,15 +97,15 @@
               <div class="foot" id="foot">
                 <label class="fl select-all">
                   <input type="checkbox" class="check-all check" />&nbsp;全选</label>
-                <a class="fl delete" id="deleteAll" href="javascript:;">删除</a>
+                <a class="fl delete" id="deleteAll" href="javascript:;">删除多个</a>
                 <div class="fr closing">结 算</div>
                 <div class="fr total">合计：￥
                   <span id="priceTotal">0.00</span>
                 </div>
                 <div class="fr selected" id="selected">已选商品
                   <span id="selectedTotal">0</span>件
-                  <span class="arrow up">︽</span>
-                  <span class="arrow down">︾</span>
+                  <!-- <span class="arrow up">︽</span> -->
+                  <!-- <span class="arrow down">︾</span> -->
                 </div>
                 <div class="selected-view">
                   <div id="selectedViewList" class="clearfix">
@@ -335,49 +332,10 @@
             </div>
         </div>
     </section>
-
-    <!-- <script type="type/html" id="tpl">
-        {{ each data item}}
-        <tr>
-            <td>{{ item.id}} </td>
-            <td><img src="{{item.img[4]}}" alt=""></td>
-            <td> {{item.pName}} </td>
-            <td>{{ item.pPrice}}</td>
-            <td> 
-                <button class='sub'>-</button>
-                <input value="{{ item.number}}">
-                <button class='sup'>+</button> 
-            </td>
-            <td> {{item.pTotal}} </td>
-            <td><i class="del iconfont icon-cha"></i></td>        
-        </tr>
-         
-        {{ /each }}
-    </script> -->
-    <script src="./js/jquery.min.js"></script>
-    <!-- <script src="./js/template-web.min.js"></script> -->
     <script src="./js/ajax.js"></script>
+    <script src="./js/jquery-2.2.4.js"></script>
+    <script src="./js/layer-master/src/layer.js"></script>
     <script src="./js/cart.js"></script>
-    <script src="./js/loading.js"></script>
-    <script src="./layui-v2.6.8/layui/layui.js"></script>
-
-    <script>
-
-        
-      
-     
-    
-
-
-
-
-
-
-
-
-      
-    </script>
-
 </body>
 
 </html>
